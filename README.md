@@ -28,7 +28,7 @@ Reader will then be abble to scroll through the years to better compare the flig
 
 ## Feedback
 
-  - some rectangles are white --> fix the color scaled
+  - some rectangles are white --> fix the color scale
   - I would like to scan through the years
   - I would like to select a given year
 
