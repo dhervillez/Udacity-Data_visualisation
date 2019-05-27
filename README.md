@@ -28,6 +28,7 @@ Reader will then be abble to scroll through the years to better compare the flig
 
 ## Feedback
 
+2- I would like to scan through the years
 ## Resources
 
 My google research on calendar heatmap with d3 lead me to the following website. <br/>

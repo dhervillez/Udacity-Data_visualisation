@@ -8,7 +8,6 @@
     </style>
     <script type="text/javascript">
       // remain to do :
-      //  - animate by year
       //  - allow user to select year with drop down menu
       //  - toggle colors
       function draw(data) {
@@ -17,7 +16,8 @@
             width = 1400 - margin,
             height = 4000 - margin;
 
-        var year = 2001;
+        var year = 1987;
+
         var filtered = data.filter(d => d.date.getUTCFullYear() === year );
 
         d3.select('body')
@@ -48,7 +48,7 @@
         const countDay = d => (d.getUTCDay() + 6) % 7;
         const countMonth = d => d.getUTCMonth();
         const timeWeek = d3.utcMonday;
-        const formatDate = d3.utcFormat("%x");
+        const formatDate = d3.utcFormat("%b %d");
         var colorFn = d3.scale.linear().range(["white", '#002b53'])
           .domain([minValue, maxValue])
 
@@ -81,7 +81,7 @@
 
         heatmap.append("g")
           .selectAll("rect")
-          .data(filtered)
+          .data(filtered, d =>d.date)
           .enter()
           .append("rect")
           .attr("width", cellSize - 1.5)
@@ -96,7 +96,7 @@
           .text(d => `${formatDate(d.date)}: ${d.value.toFixed(0)}min delay`);
 
         // legend
-        const legend = heatmap.append("g")
+        const legend = svg.append("g")
           .attr(
             "transform",
             `translate(50, ${yearHeight + cellSize * 4})`
@@ -142,6 +142,56 @@
           .attr("text-decoration", "underline")
           .text("Flight delay in minutes");
 
+        // function to update the heatmap by year
+        function update(year) {
+          // create a new var with data filtered by year var
+          var filtered = data.filter(d => d.date.getUTCFullYear() === year );
+
+          // update title of the plot each time the year is changed
+          d3.select('h2')
+            .text('Average US flight delays in ' + year);
+
+          // select all rectangles in heatmap
+          var rectangles = heatmap.selectAll('rect')
+                        .data(filtered, d =>d.date);
+
+          // remove rectangles that do not belong to update_filtered
+          rectangles.exit().remove();
+
+          // add rectangles that belong to update_filtered
+          rectangles.enter()
+            .append("rect")
+            .attr("width", cellSize - 1.5)
+            .attr("height", cellSize - 1.5)
+            .attr(
+              "x",
+              (d, i) => timeWeek.count(d3.utcYear(d.date), d.date) * cellSize + 30
+            )
+            .attr("y", d => countDay(d.date) * cellSize + 0.5 + 20)
+            .attr("fill", d => colorFn(d.value))
+            .append("title")
+            .text(d => `${formatDate(d.date)}: ${d.value.toFixed(0)}min delay`)
+            .transition()
+            .duration(1000);
+
+        };
+        // animate the plot with years
+
+        var year_idx = 0;
+        // define the list of years on which worl cup was held
+        var years = [];
+
+        for (var i = 1987; i < 2009; i +=1) {
+            years.push(i);
+        }
+        // use javascript interval function to call update function every 2000ms
+        var year_interval = setInterval(function() {
+          update(years[year_idx]);
+          year_idx++;
+          if (year_idx >= years.length) {
+            clearInterval(year_interval)
+            }
+        }, 2000)
       };
       </script>
   </head>
