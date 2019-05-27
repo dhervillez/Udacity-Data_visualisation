@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
+    <style>
+    </style>
+    <script type="text/javascript">
+      // remain to do :
+      //  - animate by year
+      //  - allow user to select year with drop down <menu>
+      //  - toggle colors
+      function draw(data) {
+        "use strict";
+        var margin = 75,
+            width = 1400 - margin,
+            height = 4000 - margin;
+
+        var year = 2002;
+        var filtered = data.filter(d => d.date.getUTCFullYear() === year );
+
+        d3.select('body')
+          .append('h2')
+          .text('Average US flight delays in ' + year);
+
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width", width + margin)
+            .attr("height", height + margin)
+            .append('g')
+            .attr('class', 'chart');
+
+        const maxValue = 80;
+        const minValue = 0;
+
+        const cellSize = 25;
+        const yearHeight = cellSize * 7;
+
+        const formatDay = function(d) {
+          return ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"][d.getUTCDay()];
+        };
+
+        const formatMonth = function(d) {
+          return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getUTCMonth()];
+        };
+
+        const countDay = d => (d.getUTCDay() + 6) % 7;
+        const countMonth = d => d.getUTCMonth();
+        const timeWeek = d3.utcMonday;
+        const formatDate = d3.utcFormat("%x");
+        var colorFn = d3.scale.linear().range(["white", '#002b53'])
+          .domain([minValue, maxValue])
+
+        // heatmap (xaxis --> month, y axis --> day of week, color --> flight delay)
+        const heatmap = svg.append("g");
+
+        heatmap.append("g")
+          .attr("text-anchor", "end")
+          .selectAll("text")
+          .data(d3.range(7).map(i => new Date(1970, 0, i)))
+          .enter()
+          .append("text")
+          .attr("x", 20)
+          .attr("y", d => (countDay(d) + 0.5) * cellSize + 20)
+          .attr("dy", "0.31em")
+          .attr("font-size", 12)
+          .text(formatDay);
+
+        heatmap.append("g")
+          .attr("text-anchor", "end")
+          .selectAll("text")
+          .data(d3.range(12).map(i => new Date(1970, i, 0)))
+          .enter()
+          .append("text")
+          .attr("x", d => (countMonth(d) + 0.5) * cellSize * 4.4 + 35)
+          .attr("y", 10)
+          .attr("dy", "0.31em")
+          .attr("font-size", 12)
+          .text(formatMonth);
+
+        heatmap.append("g")
+          .selectAll("rect")
+          .data(filtered)
+          .enter()
+          .append("rect")
+          .attr("width", cellSize - 1.5)
+          .attr("height", cellSize - 1.5)
+          .attr(
+            "x",
+            (d, i) => timeWeek.count(d3.utcYear(d.date), d.date) * cellSize + 30
+          )
+          .attr("y", d => countDay(d.date) * cellSize + 0.5 + 20)
+          .attr("fill", d => colorFn(d.value))
+          .append("title")
+          .text(d => `${formatDate(d.date)}: ${d.value.toFixed(0)}min delay`);
+
+        // legend
+        const legend = heatmap.append("g")
+          .attr(
+            "transform",
+            `translate(50, ${yearHeight + cellSize * 4})`
+          );
+
+        const categoriesCount = 8;
+        const categories = [...Array(categoriesCount)].map((_, i) => {
+          const upperBound = (maxValue / categoriesCount) * (i + 1);
+          const lowerBound = (maxValue / categoriesCount) * i;
+          return {
+            upperBound,
+            lowerBound,
+            color: colorFn(upperBound),
+            selected: true
+          };
+        });
+        const legendWidth = 60;
+
+        legend.selectAll("rect")
+          .data(categories)
+          .enter()
+          .append("rect")
+          .attr("fill", d => d.color)
+          .attr("x", (d, i) => legendWidth * i)
+          .attr("width", legendWidth)
+          .attr("height", 15);
+
+        legend.selectAll("text")
+          .data(categories)
+          .enter()
+          .append("text")
+          //.attr("transform", "rotate(90)")
+          //.attr("y", -10)
+          .attr("dy", -10)
+          .attr("x", (d, i) => 15 + legendWidth * i)
+          .attr("text-anchor", "start")
+          .attr("font-size", 11)
+          .text(d => `${d.lowerBound.toFixed(0)} - ${d.upperBound.toFixed(0)}`);
+
+        legend.append("text")
+          .attr("dy", -30)
+          .attr("font-size", 14)
+          .attr("text-decoration", "underline")
+          .text("Flight delay in minutes");
+
+      };
+      </script>
+  </head>
+<body>
+  <script type="text/javascript">
+  /*
+    Use D3 to load the GeoJSON file
+    */
+// function to import data
+d3.csv("US_flight_delays_1987-2008.csv",  function(d) {
+  // transform data type / parsing method
+  // parse to date
+  var format = d3.time.format("%Y-%m-%d")
+  d['date'] = format.parse(d['Date']);
+  // parse with unary + operation
+  d['value'] = +d['ArrDelay'];
+  d['Cancelled'] = +d['Cancelled'];
+  return d;
+},draw);
+  </script>
+</body>
+</html>
