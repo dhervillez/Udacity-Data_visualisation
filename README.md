@@ -23,18 +23,18 @@ I choose to build a calendar heatmap
   - the y-axis represents the days of the week
   - each block of the heatmap is colored by the flight delay in minutes
 
-The heatmap will be animated by year at loading.
+The heatmap will be animated by year at loading. <br/>
 Reader will then be abble to scroll through the years to better compare the flight delays accross time.
 
 ## Feedback
 
 ## Resources
 
-My google research on calendar heatmap with d3 lead me to the following website.
+My google research on calendar heatmap with d3 lead me to the following website. <br/>
 I adapted some of the d3.js scripts found on these websites for my project.
 
-https://observablehq.com/@d3/calendar-view
-https://blog.risingstack.com/tutorial-d3-js-calendar-heatmap/
-https://www.crowdanalytix.com/communityBlog/10-steps-to-create-calendar-view-heatmap-in-d3-js
+https://observablehq.com/@d3/calendar-view <br/>
+https://blog.risingstack.com/tutorial-d3-js-calendar-heatmap/ <br/>
+https://www.crowdanalytix.com/communityBlog/10-steps-to-create-calendar-view-heatmap-in-d3-js <br/>
 
 
