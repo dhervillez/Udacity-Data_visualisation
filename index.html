@@ -9,7 +9,7 @@
     <script type="text/javascript">
       // remain to do :
       //  - animate by year
-      //  - allow user to select year with drop down <menu>
+      //  - allow user to select year with drop down menu
       //  - toggle colors
       function draw(data) {
         "use strict";
@@ -17,7 +17,7 @@
             width = 1400 - margin,
             height = 4000 - margin;
 
-        var year = 2002;
+        var year = 2001;
         var filtered = data.filter(d => d.date.getUTCFullYear() === year );
 
         d3.select('body')
@@ -32,7 +32,7 @@
             .attr('class', 'chart');
 
         const maxValue = 80;
-        const minValue = 0;
+        const minValue = -1;
 
         const cellSize = 25;
         const yearHeight = cellSize * 7;
