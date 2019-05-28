@@ -9,29 +9,42 @@
     <script type="text/javascript">
 
       // remain to do :
-      //  - toggle colors
-      //  - improve dropdown menu
 
       function draw(data) {
         "use strict";
-        var margin = 75,
-            width = 1400 - margin,
-            height = 300 - margin;
 
-        var year = 1987;
+        // filter the data to the given year
+        var year = 1987
+        var filtered = data.filter(d => d.date.getUTCFullYear() === year );
+
+        // define some constant to build the heatmap
+        const cellSize = 25;
+        const yearHeight = cellSize * 7;
+        const formatDay = function(d) {
+          return ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"][d.getUTCDay()];
+        };
+        const formatMonth = function(d) {
+          return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getUTCMonth()];
+        };
+        const countDay = d => (d.getUTCDay() + 6) % 7;
+        const countMonth = d => d.getUTCMonth();
+        const timeWeek = d3.utcMonday;
+        const formatDate = d3.utcFormat("%B %d");
+
+        // set a title
+        d3.select('body')
+          .append('h2')
+          .attr('class', 'chart_title')
+          .text('Average US flight delays and cancellation in ' + year);
 
         // define the list of years
-        var years = [];
+        var years = ["Select a year:"];
 
         for (var i = 1987; i < 2009; i +=1) {
             years.push(i);
         }
-        
-        d3.select('body')
-          .append('h2')
-          .text('Average US flight delays in ' + year);
 
-        // Create a dropdown
+        // Create a dropdown and intialize the year
         var yearMenu = d3.select('body')
                         .append('select')
                         .attr('class', 'yearMenu')
@@ -40,42 +53,41 @@
                         .enter()
                         .append("option")
                         .attr("value", d => d)
-                        .text(d => d);
-        
-        var filtered = data.filter(d => d.date.getUTCFullYear() === year );
-        
-        var svg = d3.select("body")
+                        .text(d => d)
+                        .each(function(d) {
+                          if (d === "Select a year:") {
+                            d3.select(this).property("disabled", true)
+                          }
+                        });
+
+        // build the heatmap
+        var margin = 75,
+            width = 1400 - margin,
+            height = 300 - margin;
+
+        // ArrDelay heatmap
+        d3.select('body')
+          .append('h2')
+          .text('Flight delays');
+
+        var svg1 = d3.select("body")
             .append("svg")
             .attr("width", width + margin)
             .attr("height", height + margin)
             .append('g')
             .attr('class', 'chart');
 
-        const maxValue = 80;
-        const minValue = -1;
+        const maxValue1 = 70;
+        const minValue1 = 0;
 
-        const cellSize = 25;
-        const yearHeight = cellSize * 7;
-
-        const formatDay = function(d) {
-          return ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"][d.getUTCDay()];
-        };
-
-        const formatMonth = function(d) {
-          return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getUTCMonth()];
-        };
-
-        const countDay = d => (d.getUTCDay() + 6) % 7;
-        const countMonth = d => d.getUTCMonth();
-        const timeWeek = d3.utcMonday;
-        const formatDate = d3.utcFormat("%b %d");
-        var colorFn = d3.scale.linear().range(["white", '#002b53'])
-          .domain([minValue, maxValue])
+        // black and white colorscale
+        const colorFn1 = d3.scale.linear().range(["#ffffff", '#000000'])
+          .domain([minValue1, maxValue1])
 
         // heatmap (xaxis --> month, y axis --> day of week, color --> flight delay)
-        const heatmap = svg.append("g");
+        const heatmap1 = svg1.append("g");
 
-        heatmap.append("g")
+        heatmap1.append("g")
           .attr("text-anchor", "end")
           .selectAll("text")
           .data(d3.range(7).map(i => new Date(1970, 0, i)))
@@ -87,7 +99,7 @@
           .attr("font-size", 12)
           .text(formatDay);
 
-        heatmap.append("g")
+        heatmap1.append("g")
           .attr("text-anchor", "end")
           .selectAll("text")
           .data(d3.range(12).map(i => new Date(1970, i, 0)))
@@ -99,7 +111,7 @@
           .attr("font-size", 12)
           .text(formatMonth);
 
-        heatmap.append("g")
+        heatmap1.append("g")
           .selectAll("rect")
           .data(filtered, d =>d.date)
           .enter()
@@ -111,32 +123,34 @@
             (d, i) => timeWeek.count(d3.utcYear(d.date), d.date) * cellSize + 30
           )
           .attr("y", d => countDay(d.date) * cellSize + 0.5 + 20)
-          .attr("fill", d => colorFn(d.value))
+          .attr("fill", d => colorFn1(d['ArrDelay']))
           .append("title")
-          .text(d => `${formatDate(d.date)}: ${d.value.toFixed(0)}min delay`);
+          .text(d => `${formatDate(d.date)}:
+${d['ArrDelay'].toFixed(0)}min delays
+${d['Cancelled'].toFixed(0)}% cancellation rate`);
 
         // legend
-        const legend = svg.append("g")
+        const legend1 = svg1.append("g")
           .attr(
             "transform",
             `translate(50, ${yearHeight + cellSize * 4})`
           );
 
-        const categoriesCount = 8;
-        const categories = [...Array(categoriesCount)].map((_, i) => {
-          const upperBound = (maxValue / categoriesCount) * (i + 1);
-          const lowerBound = (maxValue / categoriesCount) * i;
+        const categoriesCount1 = 7;
+        const categories1 = [...Array(categoriesCount1)].map((_, i) => {
+          const upperBound1 = (maxValue1 / categoriesCount1) * (i + 1);
+          const lowerBound1 = (maxValue1 / categoriesCount1) * i;
           return {
-            upperBound,
-            lowerBound,
-            color: colorFn(upperBound),
+            upperBound1,
+            lowerBound1,
+            color: colorFn1(upperBound1),
             selected: true
           };
         });
         const legendWidth = 60;
 
-        legend.selectAll("rect")
-          .data(categories)
+        legend1.selectAll("rect")
+          .data(categories1)
           .enter()
           .append("rect")
           .attr("fill", d => d.color)
@@ -144,41 +158,147 @@
           .attr("width", legendWidth)
           .attr("height", 15);
 
-        legend.selectAll("text")
-          .data(categories)
+        legend1.selectAll("text")
+          .data(categories1)
           .enter()
           .append("text")
-          //.attr("transform", "rotate(90)")
-          //.attr("y", -10)
           .attr("dy", -10)
           .attr("x", (d, i) => 15 + legendWidth * i)
           .attr("text-anchor", "start")
           .attr("font-size", 11)
-          .text(d => `${d.lowerBound.toFixed(0)} - ${d.upperBound.toFixed(0)}`);
+          .text(d => `${d.lowerBound1.toFixed(0)} - ${d.upperBound1.toFixed(0)}`);
 
-        legend.append("text")
+        legend1.append("text")
           .attr("dy", -30)
           .attr("font-size", 14)
           .attr("text-decoration", "underline")
           .text("Flight delay in minutes");
 
-        // function to update the heatmap by year
+          // heatmap with cancellation rate
+          d3.select('body')
+            .append('h2')
+            .text('Flight cancellation rate');
+
+          var svg2 = d3.select("body")
+              .append("svg")
+              .attr("width", width + margin)
+              .attr("height", height + margin)
+              .append('g')
+              .attr('class', 'chart');
+
+          const maxValue2 = 100;
+          const minValue2 = 0;
+
+          // black and white colorscale
+          const colorFn2 = d3.scale.linear().range(["#ffffff", '#000000'])
+            .domain([minValue2, maxValue2])
+
+          // heatmap (xaxis --> month, y axis --> day of week, color --> cancellation rate)
+          const heatmap2 = svg2.append("g");
+
+          heatmap2.append("g")
+            .attr("text-anchor", "end")
+            .selectAll("text")
+            .data(d3.range(7).map(i => new Date(1970, 0, i)))
+            .enter()
+            .append("text")
+            .attr("x", 20)
+            .attr("y", d => (countDay(d) + 0.5) * cellSize + 20)
+            .attr("dy", "0.31em")
+            .attr("font-size", 12)
+            .text(formatDay);
+
+          heatmap2.append("g")
+            .attr("text-anchor", "end")
+            .selectAll("text")
+            .data(d3.range(12).map(i => new Date(1970, i, 0)))
+            .enter()
+            .append("text")
+            .attr("x", d => (countMonth(d) + 0.5) * cellSize * 4.4 + 35)
+            .attr("y", 10)
+            .attr("dy", "0.31em")
+            .attr("font-size", 12)
+            .text(formatMonth);
+
+          heatmap2.append("g")
+            .selectAll("rect")
+            .data(filtered, d =>d.date)
+            .enter()
+            .append("rect")
+            .attr("width", cellSize - 1.5)
+            .attr("height", cellSize - 1.5)
+            .attr(
+              "x",
+              (d, i) => timeWeek.count(d3.utcYear(d.date), d.date) * cellSize + 30
+            )
+            .attr("y", d => countDay(d.date) * cellSize + 0.5 + 20)
+            .attr("fill", d => colorFn2(d['Cancelled']))
+            .append("title")
+            .text(d => `${formatDate(d.date)}:
+${d['ArrDelay'].toFixed(0)}min delays
+${d['Cancelled'].toFixed(0)}% cancellation rate`);
+
+          // legend2
+          const legend2 = svg2.append("g")
+            .attr(
+              "transform",
+              `translate(50, ${yearHeight + cellSize * 4})`
+            );
+
+          const categoriesCount2 = 5;
+          const categories2 = [...Array(categoriesCount2)].map((_, i) => {
+            const upperBound2 = (maxValue2 / categoriesCount2) * (i + 1);
+            const lowerBound2 = (maxValue2 / categoriesCount2) * i;
+            return {
+              upperBound2,
+              lowerBound2,
+              color: colorFn2(upperBound2),
+              selected: true
+            };
+          });
+
+          legend2.selectAll("rect")
+            .data(categories2)
+            .enter()
+            .append("rect")
+            .attr("fill", d => d.color)
+            .attr("x", (d, i) => legendWidth * i)
+            .attr("width", legendWidth)
+            .attr("height", 15);
+
+          legend2.selectAll("text")
+            .data(categories2)
+            .enter()
+            .append("text")
+            .attr("dy", -10)
+            .attr("x", (d, i) => 15 + legendWidth * i)
+            .attr("text-anchor", "start")
+            .attr("font-size", 11)
+            .text(d => `${d.lowerBound2.toFixed(0)} - ${d.upperBound2.toFixed(0)}`);
+
+          legend2.append("text")
+            .attr("dy", -30)
+            .attr("font-size", 14)
+            .attr("text-decoration", "underline")
+            .text("Flight cancellation rate");
+
+        // function to update the heatmaps by year
         function update(year) {
           // create a new var with data filtered by year var
           var filtered = data.filter(d => d.date.getUTCFullYear() === year );
 
           // update title of the plot each time the year is changed
           d3.select('h2')
-            .text('Average US flight delays in ' + year);
+            .text('Average US flight delays and cancellation in ' + year);
 
-          // select all rectangles in heatmap
-          var rectangles = heatmap.selectAll('rect')
+          // select all rectangles in heatmap1 (ArrDelay)
+          var rectangles = heatmap1.selectAll('rect')
                         .data(filtered, d =>d.date);
 
-          // remove rectangles that do not belong to update_filtered
+          // remove rectangles that do not belong to filtered
           rectangles.exit().remove();
 
-          // add rectangles that belong to update_filtered
+          // add rectangles that belong to filtered
           rectangles.enter()
             .append("rect")
             .attr("width", cellSize - 1.5)
@@ -188,16 +308,40 @@
               (d, i) => timeWeek.count(d3.utcYear(d.date), d.date) * cellSize + 30
             )
             .attr("y", d => countDay(d.date) * cellSize + 0.5 + 20)
-            .attr("fill", d => colorFn(d.value))
+            .attr("fill", d => colorFn1(d['ArrDelay']))
             .append("title")
-            .text(d => `${formatDate(d.date)}: ${d.value.toFixed(0)}min delay`)
+            .text(d => `${formatDate(d.date)}:
+${d['ArrDelay'].toFixed(0)}min delays
+${d['Cancelled'].toFixed(0)}% cancellation rate`);
 
+          // select all rectangles in heatmap2 (Cancelled)
+          var rectangles = heatmap2.selectAll('rect')
+                        .data(filtered, d =>d.date);
+
+          // remove rectangles that do not belong to filtered
+          rectangles.exit().remove();
+
+          // add rectangles that belong to filtered
+          rectangles.enter()
+            .append("rect")
+            .attr("width", cellSize - 1.5)
+            .attr("height", cellSize - 1.5)
+            .attr(
+              "x",
+              (d, i) => timeWeek.count(d3.utcYear(d.date), d.date) * cellSize + 30
+            )
+            .attr("y", d => countDay(d.date) * cellSize + 0.5 + 20)
+            .attr("fill", d => colorFn2(d['Cancelled']))
+            .append("title")
+            .text(d => `${formatDate(d.date)}:
+${d['ArrDelay'].toFixed(0)}min delays
+${d['Cancelled'].toFixed(0)}% cancellation rate`);
         };
+
         // animate the plot with years
+        var year_idx = 1;
 
-        var year_idx = 0;
-
-        // use javascript interval function to call update function every 2000ms
+        // use javascript interval function to call update function every 1000ms
         var year_interval = setInterval(function() {
           update(years[year_idx]);
           year_idx++;
@@ -211,16 +355,15 @@
                 var year = +d3.select(this).property('value');
                 update(year);
           	})
+
             }
-        }, 2000)
+        }, 1000)
       };
       </script>
   </head>
 <body>
   <script type="text/javascript">
-  /*
-    Use D3 to load the GeoJSON file
-    */
+
 // function to import data
 d3.csv("US_flight_delays_1987-2008.csv",  function(d) {
   // transform data type / parsing method
@@ -228,8 +371,9 @@ d3.csv("US_flight_delays_1987-2008.csv",  function(d) {
   var format = d3.time.format("%Y-%m-%d")
   d['date'] = format.parse(d['Date']);
   // parse with unary + operation
-  d['value'] = +d['ArrDelay'];
-  d['Cancelled'] = +d['Cancelled'];
+  d['ArrDelay'] = +d['ArrDelay'];
+  // convert in percent
+  d['Cancelled'] = +d['Cancelled'] * 100;
   return d;
 },draw);
   </script>
