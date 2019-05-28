@@ -3,7 +3,7 @@ Github backup of US flight delays data visualisation project
 
 ## Summary
 
-Aim of the project is to visualize average US flight delays averaged by days on the period 1987-2008.
+Aim of the project is to visualize average US flight delays and cancellation by days during the period 1987-2008.
 
 Data are
   - downloaded from http://stat-computing.org/dataexpo/2009/the-data.html
@@ -23,8 +23,8 @@ I choose to build a calendar heatmap
   - the y-axis represents the days of the week
   - each block of the heatmap is colored by the flight delay in minutes
 
-The heatmap will be animated by year at loading. <br/>
-Reader will then be abble to scroll through the years to better compare the flight delays accross time.
+The heatmap is animated by year at loading. <br/>
+Reader will then be able to scroll through the years to better compare the flight delays and cancellation across time.
 
 ## Feedback
 
@@ -34,7 +34,7 @@ Reader will then be abble to scroll through the years to better compare the flig
 
 ## Resources
 
-My google research on calendar heatmap with d3 lead me to the following website. <br/>
+My google research on calendar heatmap with d3 led me to the following websites. <br/>
 I adapted some of the d3.js scripts found on these websites for my project.
 
 https://observablehq.com/@d3/calendar-view <br/>
