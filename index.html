@@ -171,10 +171,11 @@
             )
             .attr("y", d => countDay(d.date) * cellSize + 0.5 + 20)
             .attr("fill", d => colorFn(d.value))
-            .append("title")
-            .text(d => `${formatDate(d.date)}: ${d.value.toFixed(0)}min delay`)
             .transition()
             .duration(1000);
+          
+          heatmap.selectAll('rect').append("title")
+            .text(d => `${formatDate(d.date)}: ${d.value.toFixed(0)}min delay`)
 
         };
         // animate the plot with years
@@ -183,7 +184,7 @@
         // define the list of years on which worl cup was held
         var years = [];
 
-        for (var i = 1987; i < 2009; i +=1) {
+        for (var i = 2008; i < 2009; i +=1) {
             years.push(i);
         }
         // use javascript interval function to call update function every 2000ms
