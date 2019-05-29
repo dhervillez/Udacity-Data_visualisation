@@ -3,7 +3,7 @@ Github backup of US flight delays data visualisation project
 
 ## Summary
 
-Aim of the project is to visualize average US flight delays and cancellation by days during the period 1987-2008.
+Aim of the project is to visualize average US flight delays and cancellation by days during the period 1987-2008. It should illustrates that US air traffic performance is fluctuating on a weekly basis (more delays in the middle of the week) and on a seasonal basis (more delays during holidays and months with cold weather). The reader should also experience the fact that US air traffic performance can be quite different from one year to another, due to cyclic variation of the economy or to other external causes like the 9.11 terrorist attack.
 
 Data are
   - downloaded from http://stat-computing.org/dataexpo/2009/the-data.html
