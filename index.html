@@ -15,7 +15,7 @@
         "use strict";
 
         // define the list of years
-        var years = d3.range(1987, 2008);
+        var years = d3.range(1987, 2009);
 
         // filter the data to the first year of the list
         var filtered = data.filter(d => d.date.getUTCFullYear() === years[0] );
@@ -277,6 +277,7 @@ ${d['Cancelled'].toFixed(0)}% cancellation rate`);
 
         // function to update the heatmaps by year
         function update(year) {
+
           // create a new var with data filtered by year var
           var filtered = data.filter(d => d.date.getUTCFullYear() === year );
 
@@ -332,10 +333,13 @@ ${d['Cancelled'].toFixed(0)}% cancellation rate`);
         };
 
         // animate the plot with years
-        var year_idx = 1;
+        var year_idx = 0;
 
         // use javascript interval function to call update function every 1000ms
         var year_interval = setInterval(function() {
+          debugger;
+          sliderTime.value(years[year_idx]);
+          yearSlider.call(sliderTime);
           update(years[year_idx]);
           year_idx++;
           if (year_idx >= years.length) {
