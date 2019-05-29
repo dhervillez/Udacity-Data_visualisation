@@ -338,7 +338,7 @@ ${d['Cancelled'].toFixed(0)}% cancellation rate`);
         var year_interval = setInterval(function() {
           update(years[year_idx]);
           year_idx++;
-          if (year_idx >= 2) {
+          if (year_idx >= years.length) {
             clearInterval(year_interval);
 
             // when the user selects a value from the slider
