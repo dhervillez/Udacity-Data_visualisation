@@ -31,6 +31,7 @@ Reader will then be able to scroll through the years to better compare the fligh
   - some rectangles are white --> fix the color scale
   - I would like to scan through the years
   - I would like to select a given year
+  - Scan through years with a slider will be more convenient
 
 ## Resources
 
@@ -40,3 +41,7 @@ I adapted some of the d3.js scripts found on these websites for my project.
 https://observablehq.com/@d3/calendar-view <br/>
 https://blog.risingstack.com/tutorial-d3-js-calendar-heatmap/ <br/>
 https://www.crowdanalytix.com/communityBlog/10-steps-to-create-calendar-view-heatmap-in-d3-js <br/>
+
+I also used a library on top of d3 to add a slider <br/>
+https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518 <br/>
+
